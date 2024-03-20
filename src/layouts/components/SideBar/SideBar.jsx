@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import authUtils, { roles } from "../../../utils/auth.utils";
-import { Card, Typography, List, ListItem, ListItemPrefix, ListItemSuffix, Chip, Accordion, AccordionHeader, AccordionBody, pography } from "@material-tailwind/react";
+import { Card, Typography, List, ListItem, ListItemPrefix, ListItemSuffix, Chip, Accordion, AccordionHeader, AccordionBody, pography, radio } from "@material-tailwind/react";
 import { useState } from "react";
 import { useLayoutContext } from "../../../contexts/Layout/LayoutContext";
 
@@ -67,7 +67,7 @@ const SideBar = ({ open }) => {
     },
     {
       key: 9,
-      title: "Sales",
+      title: "Invoices",
       src: "/sales",
       iconClass: "fa-solid fa-money-check-dollar",
       className: "mt-2",
@@ -109,7 +109,11 @@ const SideBar = ({ open }) => {
               open && "rotate-[360deg]"
             }`}
           /> */}
-        <i className="fa-brands fa-slack text-4xl"></i>
+        {/* <i className="fa-brands fa-slack text-4xl"></i> */}
+        <div className="" style={{border: 'solid 3px #fff', borderRadius: '30%', paddingTop: '2px', paddingLeft: '2px', paddingBottom: '2px', paddingRight: '6px'}}>
+          <h1 className="italic font-inter font-medium text-lg ">JC</h1>
+        </div>
+
         <h1 className={`text-white origin-left font-inter font-medium text-lg duration-200 whitespace-nowrap ${!sidebarVisible && !sidebarVisibleByOver && "scale-0 hover:scale-100"}`}>JPrime CRM</h1>
         {/* <Typography
           className={`text-white origin-left font-regular font-inter text-xs duration-200 whitespace-nowrap ${
@@ -122,7 +126,12 @@ const SideBar = ({ open }) => {
         {getMenus().map(({ className, src, iconClass, title, type, items, key }) => {
           return type === "accordion" ? (
             <Accordion key={key} open={key == openAccordion && (sidebarVisible || sidebarVisibleByOver)}>
-              <ListItem className={`p-0 mb-1 hover:bg-[#0C2150] ${items.some((item) => location.pathname.includes(item.src)) && (key !== openAccordion || !sidebarVisible && !sidebarVisibleByOver)? "bg-[#0C2150]" : ""}`} selected={open === 1}>
+              <ListItem
+                className={`p-0 mb-1 hover:bg-[#0C2150] ${
+                  items.some((item) => location.pathname.includes(item.src)) && (key !== openAccordion || (!sidebarVisible && !sidebarVisibleByOver)) ? "bg-[#0C2150]" : ""
+                }`}
+                selected={open === 1}
+              >
                 <AccordionHeader onClick={() => setOpenAccordion((prevState) => (prevState === key ? "" : key))} className="border-b-0 p-2">
                   <div to={src} className="w-full flex text-gray-300 text-sm items-center ">
                     {/* <img src={`./src/assets/${src}.png`} /> */}
@@ -149,7 +158,7 @@ const SideBar = ({ open }) => {
                     <Link to={src} className="w-full flex gap-2 items-center">
                       {/* <img src={`./src/assets/${src}.png`} /> */}
                       {/* <i className="fa-solid fa-arrow-right"></i> */}
-                      <i class="fa-solid fa-circle text-[.3em] pl-[1em]"></i>
+                      <i className="fa-solid fa-circle text-[.3em] pl-[1em]"></i>
                       <Typography className={`${!sidebarVisible && !sidebarVisibleByOver && "scale-0"} pl-[.7em] origin-left duration-200 font-inter font-normal text-sm`}>{title}</Typography>
                     </Link>
                   </li>

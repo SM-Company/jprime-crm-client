@@ -87,10 +87,10 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
           </div> */}
 
             <div className="flex gap-3 items-center">
-              <i class="fa-solid fa-file-circle-plus text-color-1 text-lg cursor-pointer" onClick={handleFormModalOpen}></i>
-              <i class="fa-solid fa-arrow-up-from-bracket text-color-1 text-lg cursor-pointer"></i>
-              <i class="fa-solid fa-cloud-arrow-down text-color-1 text-lg cursor-pointer"></i>
-              <i class="fa-solid fa-print text-color-1 text-lg cursor-pointer"></i>
+              <i className="fa-solid fa-file-circle-plus text-color-1 text-lg cursor-pointer" onClick={handleFormModalOpen}></i>
+              <i className="fa-solid fa-arrow-up-from-bracket text-color-1 text-lg cursor-pointer"></i>
+              <i className="fa-solid fa-cloud-arrow-down text-color-1 text-lg cursor-pointer"></i>
+              <i className="fa-solid fa-print text-color-1 text-lg cursor-pointer"></i>
             </div>
           </div>
         </div>

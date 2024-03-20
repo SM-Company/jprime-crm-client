@@ -111,11 +111,12 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
       setProductSelected(newProdcutSelected);
     } else {
       newProdcutSelected[indexToModify][name] = value;
+      newProdcutSelected[indexToModify]["id"] = selectedItem?.id;
       newProdcutSelected[indexToModify]["description"] = selectedItem?.description;
       newProdcutSelected[indexToModify]["unit_price"] = selectedItem?.unit_price;
       newProdcutSelected[indexToModify]["stock_quantity"] = selectedItem?.stock_quantity;
-      console.log(selectedItem);
       setProductSelected(newProdcutSelected);
+      setFormData({...formData, selected_products: newProdcutSelected});
     }
   };
 
@@ -153,16 +154,17 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
 
   return (
     <>
-      <CustomModal isOpen={isOpen} title={saleId ? "Update Sale" : "New Sale"} size="4xl" onClose={handleOpen}>
+      <CustomModal isOpen={isOpen} title={saleId ? "Update Sale" : "New invoice"} size="4xl" onClose={handleOpen}>
         <CustomForm
           buttonName="Save"
           onSubmit={(e) => {
             e.preventDefault();
-            console.log(productSelected);
+            // console.log(productSelected);
+            console.log(formData);
           }}
           isSending={isSending}
         >
-          <CustomFormSubtitle Title="Sale Information" />
+          <CustomFormSubtitle Title="Invoice Information" />
           <InputLayout className="" items="3">
             <CustomSearchSelect name="customer_id" label="Customer" color="purple" handleChange={handleChange} value={formData?.customer_id} items={customers} itemKey={"full_name"} />
             <CustomDatepicker placeholder="Date" name="date" onChange={handleChange} value={formData?.date} minDate={generate.currentDate()} />
@@ -172,7 +174,7 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
           <InputLayout className="" items="3">
             <CustomSelect label="Payment Method" name="payment_method_id" items={paymentMethods} itemKey={"name"} handleChange={handleChange} value={formData?.payment_method_id} />
             <CustomSelect label="Payment Type" name="payment_type_id" items={paymentTypes} itemKey={"name"} handleChange={handleChange} value={formData?.payment_type_id} />
-            <CustomDatepicker placeholder="Next payment" name="next_payment" onChange={handleChange} value={formData?.next_payment} minDate={generate.currentDate()} />
+            <CustomDatepicker placeholder="Next Payment Date" name="next_payment_date" onChange={handleChange} value={formData?.next_payment_date} minDate={generate.currentDate()} />
             <CustomInput label="Discount %" name="discount" handleChange={handleChange} value={formData?.discount} />
             <CustomInput label="Tax %" name="tax" handleChange={handleChange} value={formData?.tax} />
             <CustomSelect label="Status" name="status_id" items={saleStatues} itemKey={"name"} handleChange={handleChange} value={formData?.status_id} />

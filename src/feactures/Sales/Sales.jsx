@@ -84,19 +84,18 @@ const Sales = () => {
 
   return (
     <div className="p-5">
-      <div className="grid grid-cols-12 gap-5 mt-4">
-        <div className="col-span-12 sm:col-span-6  lg:col-span-4">
-          <Input label="Search" color="purple" onChange={(e) => setFilterText(e.target.value)} className="font-inter" />
-        </div>
-        <div className="col-span-12 sm:col-span-5 md:col-span-4 lg:col-span-3">
-          <Button color="purple" onClick={handleFormModalOpen} className="font-inter w-full">
-            New Sale
-          </Button>
-        </div>
-      </div>
-
       <div className="max-w-full overflow-x-auto mt-5">
-        {/* <CustomTable TABLE_HEAD={TABLE_HEAD} items={saleData} pagination={true} itemsPerPage={7} filterText={filterText} onUpdate={handleOnUpdate} onDelete={handleOnDelete} /> */}
+        <CustomTable
+          tableName={"Sales Manager"}
+          TABLE_HEAD={TABLE_HEAD}
+          items={saleData}
+          pagination={true}
+          itemsPerPage={7}
+          onUpdate={handleOnUpdate}
+          onDelete={handleOnDelete}
+          handleFormModalOpen={handleFormModalOpen}
+          controls={true}
+        />
       </div>
       <SaleForm isOpen={isFormModalOpen} handleOpen={handleFormModalOpen} saleId={saleId} />
       <AlertComponent alertInfo={alertInfo} handleOpenAlertComponent={handleOpenAlertComponent} />
