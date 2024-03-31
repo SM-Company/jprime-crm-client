@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, CardFooter, Typography, Menu, MenuHandler, MenuList, MenuItem, Input } from "@material-tailwind/react";
+import format from "../../utils/format";
 
-function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, handleFormModalOpen, onUpdate, onDelete, children, controls }) {
+function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, handleFormModalOpen, onUpdate, onDelete, onShare, children, controls, scroll, actions, headClass }) {
   const [itemsToShow, setItemsToShow] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [filterText, setFilterText] = useState("");
@@ -43,6 +44,19 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
     return value;
   };
 
+  const evaluateDynamicLogic = (logic, data) => {
+    if (logic && data) {
+      const formattedLogic = logic.replace(/"/g, "");
+      try {
+        return eval(formattedLogic);
+      } catch (error) {
+        console.error("Error evaluating logic:", error);
+        return "";
+      }
+    }
+    return "";
+  };
+
   const getItemsToShow = () => {
     if (filterText?.length) return filteredItems;
     return pagination ? itemsToShow : items;
@@ -52,9 +66,9 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
     const clientFiltered = items?.filter((item) => {
       return TABLE_HEAD.some((head) => {
         const keyArray = head.key.split(".");
-        const itemValue = keyArray.reduce((acc, curr) => acc[curr], item);
+        const itemValue = keyArray.reduce((acc, curr) => acc?.[curr], item);
 
-        return itemValue && itemValue.toString().toLowerCase().includes(filterText.toString().toLowerCase());
+        return itemValue && itemValue?.toString().toLowerCase().includes(filterText.toString().toLowerCase());
       });
     });
     if (filterText?.length > 0) {
@@ -96,14 +110,14 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
         </div>
       )}
 
-      <div className="max-w-full overflow-x-auto mt-5">
-        <Card className="min-w-max text-left">
+      <div className={`max-w-full mt-5 ${scroll !== false ? "overflow-x-auto" : ""}`}>
+        <Card className={`text-left shadow-none ${scroll !== false ? "min-w-max" : ""}`}>
           <table>
             <thead className="bg-color-1">
               <tr>
                 {TABLE_HEAD?.map((head, index) => (
-                  <th key={index} className="border-b border-blue-gray-100 p-4">
-                    <Typography variant="small" color="blue-gray" className="font-normal font-inter leading-none text-white whitespace-nowrap">
+                  <th key={index} className={`border-b border-blue-gray-100 p-4  `}>
+                    <Typography variant="small" color="blue-gray" className={`font-normal font-inter leading-none text-white whitespace-nowrap ${headClass}`}>
                       {head?.name}
                     </Typography>
                   </th>
@@ -112,7 +126,7 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
             </thead>
             <tbody>
               {getItemsToShow()?.map(({ id, ...item }, rowIndex) => {
-                const isLast = rowIndex === itemsToShow.length - 1;
+                const isLast = rowIndex === itemsToShow?.length - 1;
                 const classes = isLast ? "py-2 px-4" : "py-2 px-4 border-b border-blue-gray-50";
 
                 return (
@@ -121,12 +135,13 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
                       colIndex < TABLE_HEAD.length - 1 ? (
                         <td className={classes} key={colIndex}>
                           <Typography variant="small" className="font-normal font-inter text-[#16191b]">
-                            {getNestedValue(item, head.key) || ""}
+                            {/* {getNestedValue(item, head.key) || ""} */}
+                            {head.type === "LOGIC" ? evaluateDynamicLogic(head.logic, item) : getNestedValue(item, head.key) || ""}
                           </Typography>
                         </td>
                       ) : null
                     )}
-                    <td className={classes} key={"ggw4g334g"}>
+                 {actions !== false ?   <td className={classes} key={"ggw4g334g"}>
                       <Menu placement="bottom-end">
                         <MenuHandler>
                           <i className="fa-solid fa-bars cursor-pointer text-color-1 text-lg pl-4"></i>
@@ -140,7 +155,14 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
                           ) : (
                             <></>
                           )}
-
+                          {onShare ? (
+                            <MenuItem className="flex items-center  font-inter" onClick={() => onShare(id)}>
+                              <i className="fa-solid fa-share-from-square text-[#a229ab] text-xl mr-1.5"></i>
+                              Share
+                            </MenuItem>
+                          ) : (
+                            <></>
+                          )}
                           {onDelete ? (
                             <MenuItem className="flex items-center  font-inter" onClick={() => onDelete(id)}>
                               <i className="fa-solid fa-trash text-[#ae1a0b] text-xl mr-3"></i>
@@ -151,7 +173,7 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
                           )}
                         </MenuList>
                       </Menu>
-                    </td>
+                    </td> : <></>}
                   </tr>
                 );
               })}

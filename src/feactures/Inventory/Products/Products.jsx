@@ -25,7 +25,7 @@ const Products = () => {
     { name: "Name", key: "name" },
     { name: "Category", key: "category.name" },
     { name: "Description", key: "description" },
-    { name: "Price", key: "price" },
+    { name: "Price", key: "unit_price" },
     { name: "Stok", key: "stock_quantity" },
     { name: "Status", key: "status.name" },
     { name: "Actions", key: "actions" },

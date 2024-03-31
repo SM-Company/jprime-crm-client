@@ -3,7 +3,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 const supplierService = {
     get: async () => {
         try {
-            const response = await axios.get(`/supplier/${user.id}`)
+            const response = await axios.get(`/supplier/${user.userable.code}`)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -24,7 +24,7 @@ const supplierService = {
 
     store: async (data) => {
         try {
-            const response = await axios.post(`/supplier/${user.id}`, data)
+            const response = await axios.post(`/supplier/${user.userable.code}`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);

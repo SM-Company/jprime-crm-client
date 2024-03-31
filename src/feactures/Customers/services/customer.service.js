@@ -4,7 +4,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 const customerService = {
     get: async () => {
         try {
-            const response = await axios.get(`/customer/${user.id}`)
+            const response = await axios.get(`/customer/${user.userable.code}`)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -25,7 +25,7 @@ const customerService = {
 
     store: async (data) => {
         try {
-            const response = await axios.post(`/customer/${user.id}`, data)
+            const response = await axios.post(`/customer/${user.userable.code}`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -36,7 +36,7 @@ const customerService = {
 
     update: async (data) => {
         try {
-            const response = await axios.put(`/customer/${user.id}`, data)
+            const response = await axios.put(`/customer`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);

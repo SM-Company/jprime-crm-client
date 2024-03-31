@@ -19,6 +19,7 @@ function ProductForm({ isOpen, handleOpen, productId }) {
   const setFormInfo = async () => {
     if (!productId) return;
     const data = await product.show(productId);
+    console.log(data.product);
     if (data.status) {
       setFormData(data.product);
     }
@@ -87,7 +88,6 @@ function ProductForm({ isOpen, handleOpen, productId }) {
     };
     setFormData((prevData) => updateNestedState(prevData, nameParts, value));
   };
-  // protected $fillable = ['code', 'nme', 'description', 'price', 'stock_quantity',  'category_id', 'status_id', 'user_id', 'deleted'];
 
   return (
     <>
@@ -96,9 +96,13 @@ function ProductForm({ isOpen, handleOpen, productId }) {
           <CustomFormSubtitle Title="Product Information" />
           <InputLayout className="" items="2">
             <CustomInput name="name" label="Name" color="purple" handleChange={handleChange} value={formData?.name} />
-            <CustomInput name="price" label="Price" color="purple" handleChange={handleChange} value={formData?.price} />
+            <CustomInput name="unit_price" label="Price" color="purple" handleChange={handleChange} value={formData?.unit_price} />
+          </InputLayout>
+
+          <InputLayout className="mt-3" items={3}>
             <CustomInput name="stock_quantity" label="Stock" color="purple" handleChange={handleChange} value={formData?.stock_quantity} />
-            <CustomSelect name="category_id" label="Category" color="purple" handleChange={handleChange} value={formData?.status_id} items={productCategories} itemKey={"name"} />
+            <CustomSelect name="category_id" label="Category" color="purple" handleChange={handleChange} value={formData?.category_id} items={productCategories} itemKey={"name"} />
+            <CustomSelect name="status_id" label="Status" color="purple" handleChange={handleChange} value={formData?.status_id} items={productStatues} itemKey={"name"} />
           </InputLayout>
           <InputLayout className="mt-4" items="1">
             <CustomTextarea name="description" label="Description" color="purple" handleChange={handleChange} value={formData?.description} />

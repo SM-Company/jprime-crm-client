@@ -4,7 +4,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 const saleService = {
     get: async () => {
         try {
-            const response = await axios.get(`/sale/${user.id}`)
+            const response = await axios.get(`/sale/${user.userable.code}`)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -25,7 +25,7 @@ const saleService = {
 
     store: async (data) => {
         try {
-            const response = await axios.post(`/sale/${user.id}`, data)
+            const response = await axios.post(`/sale/${user.userable.code}`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -36,7 +36,7 @@ const saleService = {
 
     update: async (data) => {
         try {
-            const response = await axios.put(`/sale/${user.id}`, data)
+            const response = await axios.put(`/sale`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -66,7 +66,7 @@ const saleService = {
 
     getSaleCreationData: async () => {
         try {
-            const response = await axios.get(`/sale/getSaleCreationData/${user.id}`)
+            const response = await axios.get(`/sale/getSaleCreationData/${user.userable.code}`)
             return response.data;
         } catch (error) {
             console.error('Error:', error);

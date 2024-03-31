@@ -24,16 +24,9 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
   const [alertInfo, setAlertInfo] = useState({ openAlert: false });
   const [isSending, setIsSending] = useState(false);
 
-  const setFormInfo = async () => {
-    if (!saleId) return;
-    const data = await saleServis.show(saleId);
-    if (data.status) {
-      setFormData(data.sale);
-    }
-  };
-
   const getSaleCreationData = async () => {
     const data = await saleServis.getSaleCreationData();
+    console.log(data);
     if (data.status) {
       setCustomers(data.customers);
       setSaleStatues(data.statuses);
@@ -54,24 +47,6 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
       ...props,
       openAlert: !prevAlertInfo.openAlert,
     }));
-  };
-
-  const saveSale = async (e) => {
-    e.preventDefault();
-    setIsSending(true);
-    const mode = saleId ? "update" : "store";
-    const data = await saleServis[mode](formData);
-    if (data.status) {
-      handleOpen();
-    } else {
-      handleOpenAlertComponent({
-        message: data.message,
-        title: "Error",
-        mode: "DANGER",
-        event: "INFO",
-      });
-    }
-    setIsSending(false);
   };
 
   const handleChange = (e) => {
@@ -101,6 +76,7 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
 
   const [productSelected, setProductSelected] = useState([]);
   const handleProductInputs = (event, product) => {
+    console.log(productSelected);
     const { name, value } = event.target;
     const selectedItem = event?.selectedItem;
     let newProdcutSelected = [...productSelected];
@@ -111,22 +87,34 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
       setProductSelected(newProdcutSelected);
     } else {
       newProdcutSelected[indexToModify][name] = value;
-      newProdcutSelected[indexToModify]["id"] = selectedItem?.id;
       newProdcutSelected[indexToModify]["description"] = selectedItem?.description;
       newProdcutSelected[indexToModify]["unit_price"] = selectedItem?.unit_price;
       newProdcutSelected[indexToModify]["stock_quantity"] = selectedItem?.stock_quantity;
       setProductSelected(newProdcutSelected);
-      setFormData({...formData, selected_products: newProdcutSelected});
+      setFormData({ ...formData, selected_products: newProdcutSelected });
+    }
+  };
+
+  const setFormInfo = async () => {
+    if (!saleId) return;
+    const data = await saleServis.show(saleId);
+    if (data.status) {
+      setFormData(data.sale);
+      setProductSelected(data.sale?.selected_products);
+      console.log(data.sale);
     }
   };
 
   const handleDeleteProduct = (product) => {
-    console.log(product);
-    setProductSelected((prevState) => prevState.filter((prod) => prod.id !== product.id));
+    productSelected.forEach(prod => {
+      prod.id === product.id && handleProductInputs({target: {name: 'deleted', value: !prod.deleted} }, prod)
+    });
+    // setProductSelected((prevState) => prevState.map((prod) => prod.id === product.id ? {...prod, deleted: !prod.deleted} : prod));
+    
   };
 
   const getSubTotal = () => {
-    return productSelected.map((prod) => prod?.unit_price * prod?.quantity || 0).reduce((subTotal, amount) => subTotal + amount, 0) || 0;
+    return productSelected.map((prod) => !prod.deleted ? (prod?.unit_price * prod?.quantity || 0) : 0).reduce((subTotal, amount) => subTotal + amount, 0) || 0;
   };
 
   const getTaxes = (amount, taxRate) => {
@@ -145,22 +133,67 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
     return roundedDiscount;
   };
 
+  const getTotal = () => {
+    return (getSubTotal() || 0) + (getTaxes(getSubTotal(), formData?.tax) || 0) - getDiscount(getSubTotal(), formData?.discount);
+  };
+
   const subTotal = format.price(getSubTotal() || 0);
   const taxesPercent = format.percentage(formData?.tax);
   const taxes = format.price(getTaxes(getSubTotal(), formData?.tax));
   const discountPercent = format.percentage(formData?.discount);
   const discount = format.price(getDiscount(getSubTotal(), formData?.discount));
-  const total = format.price((getSubTotal() || 0) + (getTaxes(getSubTotal(), formData?.tax) || 0) - getDiscount(getSubTotal(), formData?.discount));
+  const total = format.price(getTotal());
+
+  useEffect(() => {
+    const value = parseFloat(total.replace(/[$,]/g, ""));
+    handleChange({ target: { name: "total", value } });
+  }, [total]);
+
+  const resetPageData = () => {
+    setFormData({});
+    setCustomers([]);
+    setSaleStatues([]);
+    setProducts([]);
+    setPaymentMethods([]);
+    setPaymentTypes([]);
+    setAlertInfo({ openAlert: false });
+    setIsSending(false);
+    setProductSelected([]);
+  };
+
+  const handleClose = () => {
+    resetPageData();
+    handleOpen();
+  };
+
+  const saveSale = async (e) => {
+    e.preventDefault();
+    setIsSending(true);
+    const mode = saleId ? "update" : "store";
+    const data = await saleServis[mode](formData);
+    if (data.status) {
+      handleClose();
+    } else {
+      handleOpenAlertComponent({
+        message: data.message,
+        title: "Error",
+        mode: "DANGER",
+        event: "INFO",
+      });
+    }
+    setIsSending(false);
+  };
 
   return (
     <>
-      <CustomModal isOpen={isOpen} title={saleId ? "Update Sale" : "New invoice"} size="4xl" onClose={handleOpen}>
+      <CustomModal isOpen={isOpen} title={saleId ? "Update Sale" : "New invoice"} size="4xl" onClose={handleClose}>
         <CustomForm
           buttonName="Save"
           onSubmit={(e) => {
             e.preventDefault();
             // console.log(productSelected);
-            console.log(formData);
+            // console.log(formData);
+            saveSale(e);
           }}
           isSending={isSending}
         >
@@ -177,7 +210,7 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
             <CustomDatepicker placeholder="Next Payment Date" name="next_payment_date" onChange={handleChange} value={formData?.next_payment_date} minDate={generate.currentDate()} />
             <CustomInput label="Discount %" name="discount" handleChange={handleChange} value={formData?.discount} />
             <CustomInput label="Tax %" name="tax" handleChange={handleChange} value={formData?.tax} />
-            <CustomSelect label="Status" name="status_id" items={saleStatues} itemKey={"name"} handleChange={handleChange} value={formData?.status_id} />
+            <CustomSelect label="Status" name="status_id" handleChange={handleChange} value={formData?.status_id} items={saleStatues} itemKey={"name"} />
           </InputLayout>
           {/* <CustomTable TABLE_HEAD={TABLE_HEAD} items={saleData} pagination={true} itemsPerPage={7} filterText={filterText} onUpdate={handleOnUpdate} onDelete={handleOnDelete} /> */}
           <CustomTable TABLE_HEAD={TABLE_HEAD}>
@@ -193,6 +226,7 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
                       value={product?.product_id}
                       items={products}
                       itemKey={"name"}
+                      disabled={product?.deleted}
                     />
                   </td>
                   <td className="w-1/12 p-2">
@@ -201,18 +235,19 @@ function SaleForm({ isOpen, handleOpen, saleId }) {
                       value={product?.quantity}
                       handleChange={(event) => event.target.value <= product.stock_quantity && handleProductInputs(event, product)}
                       label="quantity"
+                      disabled={product?.deleted}
                     />
                   </td>
                   <td className="w-3/12 p-2">
-                    <CustomInput name="description" value={product?.description} label="Description" handleChange={(event) => handleProductInputs(event, product)} />
+                    <CustomInput name="description" value={product?.description} label="Description" handleChange={(event) => handleProductInputs(event, product)} disabled={product?.deleted} />
                   </td>
                   <td className="w-2/12 p-2">
-                    <CustomInput name="unit_price" value={product?.unit_price} label="Unit Price" handleChange={(event) => handleProductInputs(event, product)} />
+                    <CustomInput name="unit_price" value={product?.unit_price} label="Unit Price" handleChange={(event) => handleProductInputs(event, product)} disabled={product?.deleted} />
                   </td>
                   <td className="w-2/12 p-2">
                     <div className=" flex items-center justify-center gap-2">
                       <CustomInput name="amount" label="Amount" value={format.price(product?.unit_price * product?.quantity || 0)} disabled />
-                      <i className="fa-solid fa-trash text-[#ae1a0b] text-2xl cursor-pointer" onClick={() => handleDeleteProduct(product)}></i>
+                      <i className={`${product?.deleted ? 'fa-rotate-left text-[#1A8FF2]' : 'fa-trash text-[#ae1a0b]'} fa-solid text-2xl cursor-pointer`} onClick={() => handleDeleteProduct(product)}></i>
                     </div>
                   </td>
                 </tr>

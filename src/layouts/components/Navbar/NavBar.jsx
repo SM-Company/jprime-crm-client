@@ -4,6 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { ProfileMenu } from "./ProfileMenu";
 import { useLayoutContext } from "../../../contexts/Layout/LayoutContext";
 import NotificationsMenu from "./Notificationmenu";
+import { useSelector } from "react-redux";
 
 export default function NavbarDefault({ sideBar, pageTitle }) {
   const { toggleSidebar } = useLayoutContext();
@@ -11,6 +12,9 @@ export default function NavbarDefault({ sideBar, pageTitle }) {
   React.useEffect(() => {
     window.addEventListener("resize", () => window.innerWidth <= 960 && toggleSidebar(false));
   }, []);
+
+  const { urlParams } =  useSelector(state => state.navbar);
+  let currentPage = "";
 
   const navList = (
     <ul className="mb-4 mt-2 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
@@ -41,11 +45,14 @@ export default function NavbarDefault({ sideBar, pageTitle }) {
             <Typography className="font-inter font-normal text-sm capitalize">
               <span className="opacity-80 ">Dashboard</span>{" "}
               {location.pathname.split("/").map((name, index) => {
-                if (index !== 0) return " / " + name.replace('-', ' ');
+                if (name == urlParams) return null;
+                currentPage = name;
+                if (index !== 0) return " / " + name.replace("-", " ");
               })}
             </Typography>
             <Typography className="font-inter font-medium capitalize" style={{ marginTop: "-5px" }}>
-              {location.pathname.split("/").pop().replace('-', ' ')}
+              {/* {location.pathname.split("/").pop().replace("-", " ")} */}
+              {currentPage}
             </Typography>
           </div>
         </div>

@@ -15,20 +15,23 @@ const Sales = () => {
     const data = await saleService.get();
     if (data.status) {
       setSaleData(data.sales);
+      console.log(data.sales);
     }
   };
 
-  // useEffect(() => {
-  //   getSales();
-  // }, []);
+  useEffect(() => {
+    getSales();
+  }, []);
 
   const TABLE_HEAD = [
     { name: "Code", key: "code" },
-    { name: "Name", key: "name" },
-    { name: "Category", key: "category.name" },
-    { name: "Description", key: "description" },
-    { name: "Price", key: "price" },
-    { name: "Stok", key: "stock_quantity" },
+    { name: "Customer", key: "customer.full_name" },
+    { name: "Notes", key: "notes" },
+    { name: "Total", key: "total" },
+    { name: "Payment Method", key: "payment_method.name" },
+    { name: "Payment Type", key: "payment_type.name" },
+    { name: "Next Payment", key: "next_payment_date" },
+    { name: "Expiration Date", key: "expiration_date" },
     { name: "Status", key: "status.name" },
     { name: "Actions", key: "actions" },
   ];
@@ -82,6 +85,12 @@ const Sales = () => {
     });
   };
 
+  const handleOnShare = (id) => {
+    const encodedId = btoa(id);
+    const shareUrl = `${window.location.pathname}/share/${encodedId}`;
+    window.open(shareUrl, '_blank');
+  }
+
   return (
     <div className="p-5">
       <div className="max-w-full overflow-x-auto mt-5">
@@ -93,6 +102,7 @@ const Sales = () => {
           itemsPerPage={7}
           onUpdate={handleOnUpdate}
           onDelete={handleOnDelete}
+          onShare={handleOnShare}
           handleFormModalOpen={handleFormModalOpen}
           controls={true}
         />

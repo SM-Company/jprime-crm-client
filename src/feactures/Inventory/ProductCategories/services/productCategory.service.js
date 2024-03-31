@@ -3,7 +3,7 @@ const user = JSON.parse(localStorage.getItem("user"));
 const productCategory = {
     get: async () => {
         try {
-            const response = await axios.get(`/product-category/${user.id}`)
+            const response = await axios.get(`/product-category/${user.userable.code}`)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -24,7 +24,7 @@ const productCategory = {
 
     store: async (data) => {
         try {
-            const response = await axios.post(`/product-category/${user.id}`, data)
+            const response = await axios.post(`/product-category/${user.userable.code}`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
@@ -35,7 +35,7 @@ const productCategory = {
 
     update: async (data) => {
         try {
-            const response = await axios.put(`/product-category/${user.id}`, data)
+            const response = await axios.put(`/product-category/${user.userable.code}`, data)
             return response.data;
         } catch (error) {
             console.error('Error:', error);
