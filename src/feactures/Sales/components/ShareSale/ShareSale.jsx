@@ -10,6 +10,7 @@ import { CustomInput, CustomTextarea } from "../../../../components/CustomFields
 import format from "../../../../utils/format";
 import InputLayout from "../../../../layouts/InputLayout";
 import CustomFormSubtitle from "../../../../components/FormComponents/CustomFormSubtitle";
+import { getSubTotal, getTaxes, getDiscount, getTotal } from "../../utils/sale.utils";
 
 function ShareSale() {
   const dispatch = useDispatch();
@@ -30,36 +31,42 @@ function ShareSale() {
     getSale();
   }, []);
 
-  const getSubTotal = () => {
-    return sale?.selected_products?.map((prod) => (!prod.deleted ? prod?.unit_price * prod?.quantity || 0 : 0)).reduce((subTotal, amount) => subTotal + amount, 0) || 0;
-  };
+  // const getSubTotal = () => {
+  //   return sale?.selected_products?.map((prod) => (!prod.deleted ? prod?.unit_price * prod?.quantity || 0 : 0)).reduce((subTotal, amount) => subTotal + amount, 0) || 0;
+  // };
 
-  const getTaxes = (amount, taxRate) => {
-    const numericTaxRate = parseFloat(taxRate);
-    if (typeof amount !== "number" || isNaN(amount) || typeof numericTaxRate !== "number" || isNaN(numericTaxRate)) return 0;
-    const taxes = (amount * numericTaxRate) / 100;
-    const roundedTaxes = Math.round(taxes * 100) / 100;
-    return roundedTaxes;
-  };
+  // const getTaxes = (amount, taxRate) => {
+  //   const numericTaxRate = parseFloat(taxRate);
+  //   if (typeof amount !== "number" || isNaN(amount) || typeof numericTaxRate !== "number" || isNaN(numericTaxRate)) return 0;
+  //   const taxes = (amount * numericTaxRate) / 100;
+  //   const roundedTaxes = Math.round(taxes * 100) / 100;
+  //   return roundedTaxes;
+  // };
 
-  const getDiscount = (amount, discountRate) => {
-    const numericDiscountRate = parseFloat(discountRate);
-    if (typeof amount !== "number" || isNaN(amount) || typeof numericDiscountRate !== "number" || isNaN(numericDiscountRate)) return 0;
-    const discount = (amount * numericDiscountRate) / 100;
-    const roundedDiscount = Math.round(discount * 100) / 100;
-    return roundedDiscount;
-  };
+  // const getDiscount = (amount, discountRate) => {
+  //   const numericDiscountRate = parseFloat(discountRate);
+  //   if (typeof amount !== "number" || isNaN(amount) || typeof numericDiscountRate !== "number" || isNaN(numericDiscountRate)) return 0;
+  //   const discount = (amount * numericDiscountRate) / 100;
+  //   const roundedDiscount = Math.round(discount * 100) / 100;
+  //   return roundedDiscount;
+  // };
 
-  const getTotal = () => {
-    return (getSubTotal() || 0) + (getTaxes(getSubTotal(), sale?.tax) || 0) - getDiscount(getSubTotal(), sale?.discount);
-  };
+  // const getTotal = () => {
+  //   return (getSubTotal() || 0) + (getTaxes(getSubTotal(), sale?.tax) || 0) - getDiscount(getSubTotal(), sale?.discount);
+  // };
 
-  const subTotal = format.price(getSubTotal() || 0);
-  const taxesPercent = format.percentage(sale?.tax);
-  const taxes = format.price(getTaxes(getSubTotal(), sale?.tax));
-  const discountPercent = format.percentage(sale?.discount);
-  const discount = format.price(getDiscount(getSubTotal(), sale?.discount));
-  const total = format.price(getTotal());
+  // getSubTotal, getTaxes, getTotal
+
+  const products = sale?.selected_products;
+  const taxRate = sale?.tax;
+  const discountRate = sale?.discount;
+  const amount = getSubTotal({products})
+  const subTotal = format.price(getSubTotal({products}) || 0);
+  const taxesPercent = format.percentage(taxRate);
+  const taxes = format.price(getTaxes({amount, taxRate}));
+  const discountPercent = format.percentage(discountRate);
+  const discount = format.price(getDiscount({amount, discountRate}));
+  const total = format.price(getTotal({products, discountRate, taxRate}));
 
   const TABLE_HEAD = [
     { name: "Product", key: "main_product.name" },

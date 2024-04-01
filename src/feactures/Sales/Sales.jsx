@@ -4,6 +4,7 @@ import saleService from "./services/sale.service";
 import SaleForm from "./components/SaleForm";
 import CustomTable from "../../components/CustomTable/CustomTable";
 import AlertComponent from "../../components/Alert/Alert";
+import printInvoicePdf from "./utils/printInvoicePdf";
 
 const Sales = () => {
   const [saleData, setSaleData] = useState([]);
@@ -88,8 +89,16 @@ const Sales = () => {
   const handleOnShare = (id) => {
     const encodedId = btoa(id);
     const shareUrl = `${window.location.pathname}/share/${encodedId}`;
-    window.open(shareUrl, '_blank');
-  }
+    window.open(shareUrl, "_blank");
+  };
+
+  const handdlePrintInvoicePdf = (id) => {
+    const indexedSale = saleData.reduce((acc, el) => {
+      acc[el.id] = el;
+      return acc;
+    }, {});
+    printInvoicePdf({ sale:  indexedSale[id]});
+  };
 
   return (
     <div className="p-5">
@@ -102,7 +111,7 @@ const Sales = () => {
           itemsPerPage={7}
           onUpdate={handleOnUpdate}
           onDelete={handleOnDelete}
-          onShare={handleOnShare}
+          onShare={handdlePrintInvoicePdf}
           handleFormModalOpen={handleFormModalOpen}
           controls={true}
         />
