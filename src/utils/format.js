@@ -10,7 +10,10 @@ const format = {
     },
 
     price(price) {
-        const formattedPrice = price?.toLocaleString('en-US', {
+        const numberPrice = parseFloat(price);
+        if (isNaN(numberPrice)) return price;
+
+        const formattedPrice = numberPrice?.toLocaleString('en-US', {
             style: 'currency',
             currency: 'USD',
             minimumFractionDigits: 2,

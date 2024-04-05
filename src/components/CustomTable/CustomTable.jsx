@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Card, CardFooter, Typography, Menu, MenuHandler, MenuList, MenuItem, Input } from "@material-tailwind/react";
 import format from "../../utils/format";
 
-function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, handleFormModalOpen, onUpdate, onDelete, onShare, children, controls, scroll, actions, headClass }) {
+function CustomTable({tableId, TABLE_HEAD, tableName, items, pagination, itemsPerPage, handleFormModalOpen, children, controls, controlActions, scroll, rowActions, actions, headClass }) {
   const [itemsToShow, setItemsToShow] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [filterText, setFilterText] = useState("");
@@ -30,9 +30,9 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
     }
   };
 
-  const getNestedValue = (obj, path) => {
-    const keys = path.split(".");
-    let value = obj;
+  const getNestedValue = (item, head) => {
+    const keys = head.key.split(".");
+    let value = item;
 
     for (const key of keys) {
       if (value && typeof value === "object") {
@@ -41,6 +41,9 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
         return undefined;
       }
     }
+
+    if (head?.formatter) return head.formatter(value);
+
     return value;
   };
 
@@ -101,10 +104,9 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
           </div> */}
 
             <div className="flex gap-3 items-center">
-              <i className="fa-solid fa-file-circle-plus text-color-1 text-lg cursor-pointer" onClick={handleFormModalOpen}></i>
-              <i className="fa-solid fa-arrow-up-from-bracket text-color-1 text-lg cursor-pointer"></i>
-              <i className="fa-solid fa-cloud-arrow-down text-color-1 text-lg cursor-pointer"></i>
-              <i className="fa-solid fa-print text-color-1 text-lg cursor-pointer"></i>
+              {controlActions?.map((action, index) => (
+                <i key={index} className={`${action.icon} text-color-1 text-lg cursor-pointer`} onClick={action.function}></i>
+              ))}
             </div>
           </div>
         </div>
@@ -112,7 +114,7 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
 
       <div className={`max-w-full mt-5 ${scroll !== false ? "overflow-x-auto" : ""}`}>
         <Card className={`text-left shadow-none ${scroll !== false ? "min-w-max" : ""}`}>
-          <table>
+          <table id={tableId}>
             <thead className="bg-color-1">
               <tr>
                 {TABLE_HEAD?.map((head, index) => (
@@ -136,44 +138,32 @@ function CustomTable({ TABLE_HEAD, tableName, items, pagination, itemsPerPage, h
                         <td className={classes} key={colIndex}>
                           <Typography variant="small" className="font-normal font-inter text-[#16191b]">
                             {/* {getNestedValue(item, head.key) || ""} */}
-                            {head.type === "LOGIC" ? evaluateDynamicLogic(head.logic, item) : getNestedValue(item, head.key) || ""}
+                            {getNestedValue(item, head) || ""}
                           </Typography>
                         </td>
                       ) : null
                     )}
-                 {actions !== false ?   <td className={classes} key={"ggw4g334g"}>
-                      <Menu placement="bottom-end">
-                        <MenuHandler>
-                          <i className="fa-solid fa-bars cursor-pointer text-color-1 text-lg pl-4"></i>
-                        </MenuHandler>
-                        <MenuList>
-                          {onUpdate ? (
-                            <MenuItem className="flex items-center  font-inter" onClick={() => onUpdate(id)}>
-                              <i className="fa-solid fa-pen-to-square text-[#a229ab] text-xl mr-2"></i>
-                              Update
-                            </MenuItem>
-                          ) : (
-                            <></>
+                    {actions !== false ? (
+                      <td className={classes} key={"ggw4g334g"}>
+                        <Menu placement="bottom-end">
+                          <MenuHandler>
+                            <i className="fa-solid fa-bars cursor-pointer text-color-1 text-lg pl-4"></i>
+                          </MenuHandler>
+                          {rowActions && (
+                            <MenuList>
+                              {rowActions.map((action, index) => (
+                                <MenuItem key={index} className="flex items-center  font-inter" onClick={() => action.function(id)}>
+                                  <i className={`${action.icon} text-[#a229ab] text-xl mr-2`}></i>
+                                  {action.name}
+                                </MenuItem>
+                              ))}
+                            </MenuList>
                           )}
-                          {onShare ? (
-                            <MenuItem className="flex items-center  font-inter" onClick={() => onShare(id)}>
-                              <i className="fa-solid fa-share-from-square text-[#a229ab] text-xl mr-1.5"></i>
-                              Share
-                            </MenuItem>
-                          ) : (
-                            <></>
-                          )}
-                          {onDelete ? (
-                            <MenuItem className="flex items-center  font-inter" onClick={() => onDelete(id)}>
-                              <i className="fa-solid fa-trash text-[#ae1a0b] text-xl mr-3"></i>
-                              Delete
-                            </MenuItem>
-                          ) : (
-                            <></>
-                          )}
-                        </MenuList>
-                      </Menu>
-                    </td> : <></>}
+                        </Menu>
+                      </td>
+                    ) : (
+                      <></>
+                    )}
                   </tr>
                 );
               })}

@@ -3,6 +3,7 @@ import productService from "./services/product.service";
 import ProductForm from "./components/ProductForm";
 import CustomTable from "../../../components/CustomTable/CustomTable";
 import AlertComponent from "../../../components/Alert/Alert";
+import format from "../../../utils/format";
 
 const Products = () => {
   const [productData, setProductData] = useState([]);
@@ -25,7 +26,7 @@ const Products = () => {
     { name: "Name", key: "name" },
     { name: "Category", key: "category.name" },
     { name: "Description", key: "description" },
-    { name: "Price", key: "unit_price" },
+    { name: "Price", key: "unit_price", formatter: format.price },
     { name: "Stok", key: "stock_quantity" },
     { name: "Status", key: "status.name" },
     { name: "Actions", key: "actions" },

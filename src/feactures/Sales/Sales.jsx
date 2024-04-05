@@ -5,6 +5,10 @@ import SaleForm from "./components/SaleForm";
 import CustomTable from "../../components/CustomTable/CustomTable";
 import AlertComponent from "../../components/Alert/Alert";
 import printInvoicePdf from "./utils/printInvoicePdf";
+import format from "../../utils/format";
+import jsPDF from "jspdf";
+import "jspdf-autotable";
+import exportInvoiceExel from "./utils/exportInvoiceExel";
 
 const Sales = () => {
   const [saleData, setSaleData] = useState([]);
@@ -16,26 +20,13 @@ const Sales = () => {
     const data = await saleService.get();
     if (data.status) {
       setSaleData(data.sales);
-      console.log(data.sales);
+      // console.log(data.sales);
     }
   };
 
   useEffect(() => {
     getSales();
   }, []);
-
-  const TABLE_HEAD = [
-    { name: "Code", key: "code" },
-    { name: "Customer", key: "customer.full_name" },
-    { name: "Notes", key: "notes" },
-    { name: "Total", key: "total" },
-    { name: "Payment Method", key: "payment_method.name" },
-    { name: "Payment Type", key: "payment_type.name" },
-    { name: "Next Payment", key: "next_payment_date" },
-    { name: "Expiration Date", key: "expiration_date" },
-    { name: "Status", key: "status.name" },
-    { name: "Actions", key: "actions" },
-  ];
 
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
 
@@ -93,26 +84,66 @@ const Sales = () => {
   };
 
   const handdlePrintInvoicePdf = (id) => {
-    const indexedSale = saleData.reduce((acc, el) => {
-      acc[el.id] = el;
-      return acc;
-    }, {});
-    printInvoicePdf({ sale:  indexedSale[id]});
+    // const indexedSale = saleData.reduce((acc, el) => {
+    //   acc[el.id] = el;
+    //   return acc;
+    // }, {});
+    // printInvoicePdf({ sale:  indexedSale[id]});
+    printInvoicePdf(id);
   };
+
+  // const handleDownloadInvoice = () => {
+  //   const doc = new jsPDF();
+  //   doc.autoTable({ html: "#sale_table_id" });
+  //   doc.save("table.pdf");
+  // };
+
+  const handleExportExel = () => {
+    exportInvoiceExel({heads: TABLE_HEAD, data: saleData});
+  }
+
+  const TABLE_HEAD = [
+    { name: "Code", key: "code" },
+    { name: "Customer", key: "customer.full_name" },
+    { name: "Notes", key: "notes" },
+    { name: "Total", key: "total", formatter: format.price },
+    { name: "Payment Method", key: "payment_method.name" },
+    { name: "Payment Type", key: "payment_type.name" },
+    { name: "Next Payment", key: "next_payment_date" },
+    { name: "Expiration Date", key: "expiration_date" },
+    { name: "Status", key: "status.name" },
+    { name: "Actions", key: "actions", onPrint: "HIDDEN" },
+  ];
+
+  const rowActions = [
+    { name: "Update", function: handleOnUpdate, icon: "fa-solid fa-pen-to-square" },
+    { name: "Share", function: handleOnShare, icon: "fa-solid fa-share-from-square" },
+    { name: "PDF", function: handdlePrintInvoicePdf, icon: "fa-solid fa-file-pdf" },
+    { name: "Delete", function: handleOnDelete, icon: "fa-solid fa-trash" },
+  ];
+
+  const controlActions = [
+    { name: "Create", function: handleFormModalOpen, icon: "fa-solid fa-file-circle-plus" },
+    { name: "Upload", function: null, icon: "fa-solid fa-arrow-up-from-bracket" },
+    { name: "Download", function: handleExportExel, icon: "fa-solid fa-cloud-arrow-down" },
+    { name: "Print", function: null, icon: "fa-solid fa-print" },
+  ];
+
+
 
   return (
     <div className="p-5">
       <div className="max-w-full overflow-x-auto mt-5">
         <CustomTable
+          tableId="sale_table_id"
           tableName={"Sales Manager"}
           TABLE_HEAD={TABLE_HEAD}
           items={saleData}
           pagination={true}
           itemsPerPage={7}
-          onUpdate={handleOnUpdate}
-          onDelete={handleOnDelete}
-          onShare={handdlePrintInvoicePdf}
           handleFormModalOpen={handleFormModalOpen}
+          rowActions={rowActions}
+          controlActions={controlActions}
           controls={true}
         />
       </div>
